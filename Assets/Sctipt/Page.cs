@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Playables;
+using UnityEngine.Timeline;
 using UnityEngine.U2D.IK;
 using UnityEngine.UI;
 
@@ -23,13 +25,16 @@ public class Page : MonoBehaviour
     public GameObject firstPanal;
     public GameObject matterPanal;
     public GameObject resultPanal;
-    public GameObject answerPanal;
+    public GameObject answer;
+    public GameObject Image_3;
     public AudioClip c_o;
     public AudioClip c_x;
     public AudioClip c_touch;
+    public AudioClip c_main;
     public AudioClip c_time;
     public AudioClip c_clear;
     public AudioClip c_fail;
+    public PlayableDirector t_clip;
 
 
     Sprite[] ranSprite;
@@ -43,6 +48,9 @@ public class Page : MonoBehaviour
     public TMP_Text people;
     public GameObject peoplePanal;
     bool opneSetting = false;
+    bool B_timeButton = true;
+    float timeButton = -1.5f;
+
     void Start()
     {
 
@@ -54,30 +62,26 @@ public class Page : MonoBehaviour
     {
         if (countO == 3)
         {
-            resultPanal.GetComponent<Image>().sprite = resultO;
-            gameObject.GetComponent<AudioSource>().clip = c_clear;
-            resultPanal.SetActive(true);
-            firstPanal.SetActive(false);
-            matterPanal.SetActive(false);
-            answerPanal.SetActive(false);
-            countO = 0;
-            b_sound = true;
-            b_answer = true;
-            countSetting++;
+            if (matterPanal.GetComponent<Image>().sprite == p3)
+            {
+                Invoke("Success", 1.5f);
+            }
+            else
+            {
+                Success();
+            }
+
         }
         if (countX == 3)
         {
-            resultPanal.GetComponent<Image>().sprite = resultX;
-            gameObject.GetComponent<AudioSource>().clip = c_fail;
-
-            resultPanal.SetActive(true);
-            firstPanal.SetActive(false);
-            matterPanal.SetActive(false);
-            answerPanal.SetActive(false);
-
-            countX = 0;
-            b_sound = true;
-            b_answer = true;
+            if (matterPanal.GetComponent<Image>().sprite == p3)
+            {
+                Invoke("Fail",1.5f);
+            }
+            else
+            {
+                Fail();
+            }
 
         }
         if (b_sound == true)
@@ -87,7 +91,47 @@ public class Page : MonoBehaviour
 
             b_sound = false;
         }
+
+        if (timeButton > -1.5f)
+        {
+            timeButton -= Time.deltaTime;
+        }
+        if (timeButton <= -1.5f)
+        {
+            B_timeButton = true;
+            timeButton = -1.5f;
+        }
     }
+    void Success()
+    {
+        resultPanal.GetComponent<Image>().sprite = resultO;
+        gameObject.GetComponent<AudioSource>().clip = c_clear;
+        resultPanal.SetActive(true);
+        firstPanal.SetActive(false);
+        matterPanal.SetActive(false);
+        Image_3.SetActive(false);
+        answer.SetActive(false);
+        countO = 0;
+        b_sound = true;
+        b_answer = true;
+        countSetting++;
+    }
+    void Fail()
+    {
+        resultPanal.GetComponent<Image>().sprite = resultX;
+        gameObject.GetComponent<AudioSource>().clip = c_fail;
+
+        resultPanal.SetActive(true);
+        firstPanal.SetActive(false);
+        matterPanal.SetActive(false);
+        Image_3.SetActive(false);
+        answer.SetActive(false);
+
+        countX = 0;
+        b_sound = true;
+        b_answer = true;
+    }
+
     void FinalSound()
     {
         gameObject.GetComponent<AudioSource>().clip = c_clear;
@@ -131,6 +175,7 @@ public class Page : MonoBehaviour
         firstPanal.SetActive(false);
         gameObject.GetComponent<AudioSource>().clip = c_touch;
         gameObject.GetComponent<AudioSource>().Play();
+        gameObject.GetComponent<AudioSource>().loop = false;
 
         Invoke("sound", 0);
     }
@@ -142,12 +187,21 @@ public class Page : MonoBehaviour
             gameObject.GetComponent<AudioSource>().Play();
         }
     }
+    void Ressetsound()
+    {
+
+        gameObject.GetComponent<AudioSource>().clip = c_main;
+        gameObject.GetComponent<AudioSource>().Play();
+        gameObject.GetComponent<AudioSource>().loop = true;
+
+    }
     void Answer()
     {
         if (b_answer == false)
         {
 
-            answerPanal.SetActive(false);
+            answer.SetActive(false);
+            Image_3.SetActive(false);
             matterPanal.GetComponent<Image>().sprite = ranSprite[pageCount];
             matterPanal.SetActive(true);
         }
@@ -155,101 +209,125 @@ public class Page : MonoBehaviour
     public void OPanalButton()
     {
 
-        if (matterPanal.GetComponent<Image>().sprite == p1)
+        timeButton = 0;
+        if (B_timeButton == true)
         {
-            answerPanal.transform.GetChild(0).GetComponent<Image>().sprite = o;
-            gameObject.GetComponent<AudioSource>().clip = c_o;
-            countO++;
-        }
-        if (matterPanal.GetComponent<Image>().sprite == p2)
-        {
-            answerPanal.transform.GetChild(0).GetComponent<Image>().sprite = o;
-            gameObject.GetComponent<AudioSource>().clip = c_o;
-            countO++;
-        }
-        if (matterPanal.GetComponent<Image>().sprite == p3)
-        {
-            answerPanal.transform.GetChild(0).GetComponent<Image>().sprite = o;
-            gameObject.GetComponent<AudioSource>().clip = c_o;
-            countO++;
-        }
-        if (matterPanal.GetComponent<Image>().sprite == p4)
-        {
-            answerPanal.transform.GetChild(0).GetComponent<Image>().sprite = x;
-            gameObject.GetComponent<AudioSource>().clip = c_x;
+            if (matterPanal.GetComponent<Image>().sprite == p1)
+            {
+                answer.transform.GetChild(0).gameObject.SetActive(true);
+                answer.transform.GetChild(1).gameObject.SetActive(false);
+                gameObject.GetComponent<AudioSource>().clip = c_o;
+                countO++;
+            }
+            if (matterPanal.GetComponent<Image>().sprite == p2)
+            {
+                answer.transform.GetChild(0).gameObject.SetActive(true);
+                answer.transform.GetChild(1).gameObject.SetActive(false);
+                gameObject.GetComponent<AudioSource>().clip = c_o;
+                countO++;
+            }
+            if (matterPanal.GetComponent<Image>().sprite == p3)
+            {
+                answer.transform.GetChild(0).gameObject.SetActive(true);
+                answer.transform.GetChild(1).gameObject.SetActive(false);
+                Image_3.SetActive(true);
+                gameObject.GetComponent<AudioSource>().clip = c_x;
+                t_clip.Play();
+                countX++;
+            }
+            if (matterPanal.GetComponent<Image>().sprite == p4)
+            {
+                answer.transform.GetChild(0).gameObject.SetActive(true);
+                answer.transform.GetChild(1).gameObject.SetActive(false);
+                gameObject.GetComponent<AudioSource>().clip = c_o;
+                countO++;
 
 
-            countX++;
-        }
-        if (matterPanal.GetComponent<Image>().sprite == p5)
-        {
-            answerPanal.transform.GetChild(0).GetComponent<Image>().sprite = x;
-            gameObject.GetComponent<AudioSource>().clip = c_x;
+            }
+            if (matterPanal.GetComponent<Image>().sprite == p5)
+            {
+                answer.transform.GetChild(0).gameObject.SetActive(true);
+                answer.transform.GetChild(1).gameObject.SetActive(false);
+                gameObject.GetComponent<AudioSource>().clip = c_o;
 
-            countX++;
-        }
+                countO++;
+            }
 
-        gameObject.GetComponent<AudioSource>().Play();
-        answerPanal.SetActive(true);
-        pageCount++;
-        Invoke("sound", 3);
-        Invoke("Answer", 3);
+            gameObject.GetComponent<AudioSource>().Play();
+            answer.SetActive(true);
+            pageCount++;
+            B_timeButton = false;
+            Invoke("sound", 1.5f);
+            Invoke("Answer", 1.5f);
+        }
     }
 
     public void XPanalButton()
     {
-
-        if (matterPanal.GetComponent<Image>().sprite == p1)
+        timeButton = 0;
+        if (B_timeButton == true)
         {
-            answerPanal.transform.GetChild(0).GetComponent<Image>().sprite = o;
-            gameObject.GetComponent<AudioSource>().clip = c_x;
 
-            countX++;
-        }
-        if (matterPanal.GetComponent<Image>().sprite == p2)
-        {
-            answerPanal.transform.GetChild(0).GetComponent<Image>().sprite = o;
-            gameObject.GetComponent<AudioSource>().clip = c_x;
+            if (matterPanal.GetComponent<Image>().sprite == p1)
+            {
+                answer.transform.GetChild(1).gameObject.SetActive(true);
+                answer.transform.GetChild(0).gameObject.SetActive(false);
+                gameObject.GetComponent<AudioSource>().clip = c_x;
+                t_clip.Play();
+                countX++;
+            }
+            if (matterPanal.GetComponent<Image>().sprite == p2)
+            {
+                answer.transform.GetChild(1).gameObject.SetActive(true);
+                answer.transform.GetChild(0).gameObject.SetActive(false);
+                gameObject.GetComponent<AudioSource>().clip = c_x;
+                t_clip.Play();
+                countX++;
+            }
+            if (matterPanal.GetComponent<Image>().sprite == p3)
+            {
+                answer.transform.GetChild(1).gameObject.SetActive(true);
+                answer.transform.GetChild(0).gameObject.SetActive(false);
+                Image_3.SetActive(true);
+                gameObject.GetComponent<AudioSource>().clip = c_o;
 
-            countX++;
+                countO++;
+            }
+            if (matterPanal.GetComponent<Image>().sprite == p4)
+            {
+                answer.transform.GetChild(1).gameObject.SetActive(true);
+                answer.transform.GetChild(0).gameObject.SetActive(false);
+                gameObject.GetComponent<AudioSource>().clip = c_x;
+                t_clip.Play();
+                countX++;
+            }
+            if (matterPanal.GetComponent<Image>().sprite == p5)
+            {
+                answer.transform.GetChild(1).gameObject.SetActive(true);
+                answer.transform.GetChild(0).gameObject.SetActive(false);
+                gameObject.GetComponent<AudioSource>().clip = c_x;
+                t_clip.Play();
+                countX++;
+            }
+            gameObject.GetComponent<AudioSource>().Play();
+            answer.SetActive(true);
+            pageCount++;
+            B_timeButton = false;
+            Invoke("sound", 1.5f);
+            Invoke("Answer", 1.5f);
         }
-        if (matterPanal.GetComponent<Image>().sprite == p3)
-        {
-            answerPanal.transform.GetChild(0).GetComponent<Image>().sprite = o;
-            gameObject.GetComponent<AudioSource>().clip = c_x;
-
-            countX++;
-        }
-        if (matterPanal.GetComponent<Image>().sprite == p4)
-        {
-            answerPanal.transform.GetChild(0).GetComponent<Image>().sprite = x;
-            gameObject.GetComponent<AudioSource>().clip = c_o;
-
-            countO++;
-        }
-        if (matterPanal.GetComponent<Image>().sprite == p5)
-        {
-            answerPanal.transform.GetChild(0).GetComponent<Image>().sprite = x;
-            gameObject.GetComponent<AudioSource>().clip = c_o;
-            countO++;
-        }
-        gameObject.GetComponent<AudioSource>().Play();
-        answerPanal.SetActive(true);
-        pageCount++;
-        Invoke("sound", 3);
-        Invoke("Answer", 3);
     }
     public void Reset()
     {
         firstPanal.SetActive(true);
         resultPanal.SetActive(false);
         matterPanal.SetActive(false);
-        answerPanal.SetActive(false);
+        answer.SetActive(false);
         b_answer = false;
         pageCount = 0;
         countO = 0;
         countX = 0;
-        Invoke("sound", 0);
+        Invoke("Ressetsound", 0);
     }
     public void CountSetting()
     {
